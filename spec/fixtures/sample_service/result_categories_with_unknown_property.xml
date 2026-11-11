@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xml:base="http://test.com/test.svc/"
+    xmlns="http://www.w3.org/2005/Atom"
+    xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+    xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <id>http://test.com/test.svc/Categories</id>
+    <title type="text">Categories</title>
+    <updated>2013-07-22T14:54:47Z</updated>
+    <link rel="self" title="Categories" href="Categories" />
+    <entry>
+        <id>http://test.com/test.svc/Categories(1)</id>
+        <category term="RubyODataService.Category" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" title="Category" href="Categories(1)" />
+        <title type="text"></title>
+        <updated>2013-07-22T14:54:47Z</updated>
+        <author><name /></author>
+        <content type="application/xml">
+            <m:properties>
+                <d:Id m:type="Edm.Int32">1</d:Id>
+                <d:Name>Category 1</d:Name>
+                <d:УдалитьПодакцизныйТовар m:type="Edm.Boolean">false</d:УдалитьПодакцизныйТовар>
+            </m:properties>
+        </content>
+    </entry>
+</feed>

@@ -181,6 +181,33 @@ module OData
       end
     end
 
+    describe "feed with a property missing from the metadata" do
+      before(:each) do
+        stub_request(:get, "http://test.com/test.svc/$metadata").
+          with(:headers => DEFAULT_HEADERS).
+          to_return(:status => 200, :body => File.new(File.expand_path("../fixtures/sample_service/edmx_categories_products.xml", __FILE__)), :headers => {})
+
+        stub_request(:get, "http://test.com/test.svc/Categories").
+          with(:headers => DEFAULT_HEADERS).
+          to_return(:status => 200, :body => File.new(File.expand_path("../fixtures/sample_service/result_categories_with_unknown_property.xml", __FILE__)), :headers => {})
+      end
+
+      it "does not raise when the feed contains an unknown property" do
+        svc = OData::Service.new "http://test.com/test.svc/"
+        svc.Categories
+        expect { svc.execute }.to_not raise_error
+      end
+
+      it "still populates the known properties and skips the unknown one" do
+        svc = OData::Service.new "http://test.com/test.svc/"
+        svc.Categories
+        category = svc.execute.first
+        category.should be_a_kind_of(Category)
+        category.Name.should eq "Category 1"
+        category.respond_to?("УдалитьПодакцизныйТовар").should eq false
+      end
+    end
+
     describe "collections, objects, metadata etc" do
       before(:each) do
         # Metadata

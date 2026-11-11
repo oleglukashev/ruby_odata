@@ -485,7 +485,7 @@ class Service
     # Fill properties
     for prop in properties
       prop_name = prop.name
-      klass.send "#{prop_name}=", parse_value_xml(prop)
+      assign_odata_property(klass, prop_name, parse_value_xml(prop))
     end
 
     # Fill properties represented outside of the properties collection
@@ -770,7 +770,34 @@ class Service
   def fill_complex_type_properties(complex_type_xml, klass)
     properties = complex_type_xml.xpath(".//*")
     properties.each do |prop|
-      klass.send "#{prop.name}=", parse_value_xml(prop)
+      assign_odata_property(klass, prop.name, parse_value_xml(prop))
+    end
+  end
+
+  # Assigns a property parsed from the OData feed to the generated entity.
+  #
+  # The entity classes are built once from the (possibly cached) $metadata, so a
+  # property that was added/renamed in the source system afterwards has no
+  # setter. Instead of raising NoMethodError (which aborts the whole page/feed),
+  # we skip the unknown property and log a warning. Properties we actually map
+  # and persist are read explicitly elsewhere, and any real save failure still
+  # surfaces per-record in the importer.
+  def assign_odata_property(klass, prop_name, value)
+    setter = "#{prop_name}="
+    if klass.respond_to?(setter)
+      klass.send setter, value
+    else
+      log_unknown_odata_property(klass, prop_name)
+    end
+  end
+
+  def log_unknown_odata_property(klass, prop_name)
+    message = "ruby_odata: skipping unknown property #{klass.class}##{prop_name} " \
+              "(OData metadata is stale — regenerate it, e.g. `rake odata:save_metadata`)"
+    if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+      Rails.logger.warn message
+    else
+      warn message
     end
   end
 
